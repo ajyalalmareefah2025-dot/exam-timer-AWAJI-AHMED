@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>شاشة الاختبار</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== Start Overlay ===== -->
+  <div id="startOverlay">
+    <div class="startBox">
+
+      <div class="setup">
+        <label>الفصل</label>
+        <select id="classSelect"></select>
+
+        <label>المادة (حسب الفصل)</label>
+        <select id="examSelect"></select>
+
+        <div class="miniRow">
+          <div>
+            <label>تاريخ الاختبار</label>
+            <input id="dateInput" type="text" readonly>
+          </div>
+          <div>
+            <label>مدة الاختبار (دقيقة)</label>
+            <!-- تقدر تخليه readonly إذا تبي، أو خليته editable -->
+            <input id="minInput" type="number" value="120">
+          </div>
+        </div>
+
+        <label>عدد الطلاب (اختياري)</label>
+        <input id="stuInput" type="number" placeholder="مثال: 25">
+
+        <div class="examMeta" id="examMeta">—</div>
+      </div>
+
+      <button id="startBtn">ابدأ الاختبار</button>
+      <div id="startHint">اختر الفصل ثم المادة ثم اضغط ابدأ</div>
+
+    </div>
+  </div>
+
+  <!-- ===== Main Screen ===== -->
+  <div class="screen is-hidden" id="screenRoot">
+    <div class="info">
+      <div>🏫 CLASS: <strong id="CLASS_TXT">—</strong></div>
+      <div>📘 SUBJECT: <strong id="SUBJECT_TXT">—</strong></div>
+      <div>📅 DATE: <strong id="DATE_TXT">—</strong></div>
+    </div>
+
+    <div class="timer-title">⏱️ The remaining Time of Exam</div>
+    <div class="timer" id="timer">00:00:00</div>
+
+    <div class="footerInfo">
+      👥 Students: <strong id="STU_TXT">—</strong>
+      &nbsp; | &nbsp;
+      ⏱️ Minutes: <strong id="MIN_TXT">—</strong>
+    </div>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // ===== 1) جدول الاختبارات (WRITTEN EXAM) حسب صورتك =====
+  const schedule = {
+    "GRADE-4 IV": [
+      { subject: "Maths",     date: "31-12-2025", day: "WEDNESDAY" },
+      { subject: "Languages", date: "01-01-2026", day: "THURSDAY"  },
+      { subject: "English",   date: "04-01-2026", day: "SUNDAY"    },
+      { subject: "Science",   date: "05-01-2026", day: "MONDAY"    },
+    ],
+    "GRADE-5 V": [
+      { subject: "Maths",     date: "31-12-2025", day: "WEDNESDAY" },
+      { subject: "Science",   date: "01-01-2026", day: "THURSDAY"  },
+      { subject: "English",   date: "04-01-2026", day: "SUNDAY"    },
+      { subject: "Languages", date: "05-01-2026", day: "MONDAY"    },
+    ],
+    "GRADE-6 VI": [
+      { subject: "English",   date: "31-12-2025", day: "WEDNESDAY" },
+      { subject: "Languages", date: "01-01-2026", day: "THURSDAY"  },
+      { subject: "Maths",     date: "04-01-2026", day: "SUNDAY"    },
+      { subject: "Science",   date: "05-01-2026", day: "MONDAY"    },
+    ],
+    "GRADE-7 VII": [
+      { subject: "Science",   date: "31-12-2025", day: "WEDNESDAY" },
+      { subject: "Languages", date: "01-01-2026", day: "THURSDAY"  },
+      { subject: "Maths",     date: "04-01-2026", day: "SUNDAY"    },
+      { subject: "English",   date: "05-01-2026", day: "MONDAY"    },
+    ],
+    "GRADE-8 VIII": [
+      { subject: "English",   date: "30-12-2025", day: "TUESDAY"   },
+      { subject: "Languages", date: "31-12-2025", day: "WEDNESDAY" },
+      { subject: "Maths",     date: "01-01-2026", day: "THURSDAY"  },
+      { subject: "Physics",   date: "04-01-2026", day: "SUNDAY"    },
+      { subject: "Chemistry", date: "05-01-2026", day: "MONDAY"    },
+      { subject: "Biology",   date: "06-01-2026", day: "TUESDAY"   },
+    ],
+    "GRADE-9 IX": [
+      { subject: "English",   date: "30-12-2025", day: "TUESDAY"   },
+      { subject: "Biology",   date: "31-12-2025", day: "WEDNESDAY" },
+      { subject: "Maths",     date: "01-01-2026", day: "THURSDAY"  },
+      { subject: "Physics",   date: "04-01-2026", day: "SUNDAY"    },
+      { subject: "Chemistry", date: "05-01-2026", day: "MONDAY"    },
+      { subject: "Languages", date: "06-01-2026", day: "TUESDAY"   },
+    ],
+    "GRADE-10 X": [
+      { subject: "English",   date: "30-12-2025", day: "TUESDAY"   },
+      { subject: "Maths",     date: "31-12-2025", day: "WEDNESDAY" },
+      { subject: "Physics",   date: "01-01-2026", day: "THURSDAY"  },
+      { subject: "Languages", date: "04-01-2026", day: "SUNDAY"    },
+      { subject: "Biology",   date: "05-01-2026", day: "MONDAY"    },
+      { subject: "Chemistry", date: "06-01-2026", day: "TUESDAY"   },
+    ],
+    " GRADE-11 XI": [
+      { subject: "Languages", date: "30-12-2025", day: "TUESDAY"   },
+      { subject: "English",   date: "31-12-2025", day: "WEDNESDAY" },
+      { subject: "Chemistry", date: "01-01-2026", day: "THURSDAY"  },
+      { subject: "Biology",   date: "04-01-2026", day: "SUNDAY"    },
+      { subject: "Physics",   date: "05-01-2026", day: "MONDAY"    },
+      { subject: "Maths",     date: "06-01-2026", day: "TUESDAY"   },
+    ],
+    "GRADE-12 XII": [
+      { subject: "English",   date: "30-12-2025", day: "TUESDAY"   },
+      { subject: "Languages", date: "31-12-2025", day: "WEDNESDAY" },
+      { subject: "Chemistry", date: "01-01-2026", day: "THURSDAY"  },
+      { subject: "Biology",   date: "04-01-2026", day: "SUNDAY"    },
+      { subject: "Physics",   date: "05-01-2026", day: "MONDAY"    },
+      { subject: "Maths",     date: "06-01-2026", day: "TUESDAY"   },
+    ],
+  };
+
+  // ===== 2) عناصر الصفحة =====
+  const classSelect  = document.getElementById("classSelect");
+  const examSelect   = document.getElementById("examSelect");
+  const dateInput    = document.getElementById("dateInput");
+  const minInput     = document.getElementById("minInput");
+  const stuInput     = document.getElementById("stuInput");
+  const examMeta     = document.getElementById("examMeta");
+
+  const CLASS_TXT    = document.getElementById("CLASS_TXT");
+  const SUBJECT_TXT  = document.getElementById("SUBJECT_TXT");
+  const DATE_TXT     = document.getElementById("DATE_TXT");
+  const STU_TXT      = document.getElementById("STU_TXT");
+  const MIN_TXT      = document.getElementById("MIN_TXT");
+
+  const startBtn     = document.getElementById("startBtn");
+  const startOverlay = document.getElementById("startOverlay");
+  const screenRoot   = document.getElementById("screenRoot");
+  const timerElement = document.getElementById("timer");
+
+  // ===== 3) مؤقت =====
+  let totalSeconds = 0;
+  let timerInterval = null;
+
+  function updateTimer() {
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+
+    timerElement.textContent =
+      String(h).padStart(2, "0") + ":" +
+      String(m).padStart(2, "0") + ":" +
+      String(s).padStart(2, "0");
+
+    if (totalSeconds > 0) {
+      totalSeconds--;
+    } else {
+      timerElement.textContent = "Time is finish";
+      timerElement.style.color = "red";
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  // ===== 4) تعبئة القوائم =====
+  function fillClasses() {
+    const classes = Object.keys(schedule);
+    classSelect.innerHTML = classes.map(c => `<option value="${c}">${c}</option>`).join("");
+  }
+
+  function fillExamsForClass(cls) {
+    const exams = schedule[cls] || [];
+    examSelect.innerHTML = exams.map((e, i) =>
+      `<option value="${i}">${e.subject} — ${e.date}</option>`
+    ).join("");
+  }
+
+  function applySelected() {
+    const cls = classSelect.value;
+    const exams = schedule[cls] || [];
+    const idx = Number(examSelect.value) || 0;
+    const e = exams[idx];
+    if (!e) return;
+
+    // عرض البيانات
+    CLASS_TXT.textContent = cls;
+    SUBJECT_TXT.textContent = e.subject;
+    DATE_TXT.textContent = e.date;
+
+    dateInput.value = e.date;
+
+    const mins = Number(minInput.value) || 120;
+    MIN_TXT.textContent = mins;
+
+    const stu = stuInput.value || "—";
+    STU_TXT.textContent = stu;
+
+    examMeta.textContent = `${e.day} • ${e.date} • ${e.subject} • ${mins} min`;
+    timerElement.style.color = "#000";
+
+    // تجهيز وقت العداد (لا يبدأ إلا بعد الضغط)
+    totalSeconds = mins * 60;
+    timerElement.textContent = "00:00:00";
+  }
+
+  // ===== 5) Fullscreen + Start =====
+  async function goFullscreen() {
+    try {
+      await document.documentElement.requestFullscreen?.();
+    } catch (e) { }
+  }
+
+  function startExam() {
+    if (timerInterval) return;
+
+    // تحديث آخر لحظة
+    applySelected();
+
+    startOverlay.style.display = "none";
+    screenRoot.classList.remove("is-hidden");
+
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+
+  // Events
+  fillClasses();
+  fillExamsForClass(classSelect.value);
+  applySelected();
+
+  classSelect.addEventListener("change", () => {
+    fillExamsForClass(classSelect.value);
+    applySelected();
+  });
+
+  examSelect.addEventListener("change", applySelected);
+  minInput.addEventListener("input", applySelected);
+  stuInput.addEventListener("input", applySelected);
+
+  startBtn.addEventListener("click", async () => {
+    await goFullscreen();
+    startExam();
+  });
+
+});
+</script>
+
+</body>
+</html>
