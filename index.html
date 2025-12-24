@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>شاشة الاختبار</title>
+  <title> School Exam Display System (AWAJI)</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -12,32 +12,32 @@
     <div class="startBox">
 
       <div class="setup">
-        <label>الفصل</label>
+        <label>GRADE</label>
         <select id="classSelect"></select>
 
-        <label>المادة (حسب الفصل)</label>
+        <label>SUBJECT (GRADE)</label>
         <select id="examSelect"></select>
 
         <div class="miniRow">
           <div>
-            <label>تاريخ الاختبار</label>
+            <label>TEST DATE</label>
             <input id="dateInput" type="text" readonly>
           </div>
           <div>
-            <label>مدة الاختبار (دقيقة)</label>
+            <label>EXAM DURATION (Minutes)</label>
             <!-- تقدر تخليه readonly إذا تبي، أو خليته editable -->
             <input id="minInput" type="number" value="120">
           </div>
         </div>
 
-        <label>عدد الطلاب (اختياري)</label>
+        <label>NUMBER OF STUDENT </label>
         <input id="stuInput" type="number" placeholder="مثال: 25">
 
         <div class="examMeta" id="examMeta">—</div>
       </div>
 
-      <button id="startBtn">ابدأ الاختبار</button>
-      <div id="startHint"> AWAJI-AHMED </div>
+      <button id="startBtn">START EXAM </button>
+      <div id="startHint">AWAJI-AHMED </div>
 
     </div>
   </div>
@@ -259,4 +259,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
+
 
